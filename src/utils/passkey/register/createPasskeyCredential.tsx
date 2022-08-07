@@ -16,9 +16,11 @@ const CreatePassKeyCredential = async (
     challengeBufferString as string,
     (c) => c.charCodeAt(0)
   );
-  const userIdBuffer = Uint8Array.from(generateRandomString(8), (c) =>
-    c.charCodeAt(0)
-  );
+
+  const userId = generateRandomString(8);
+  console.log("✅  userId : ", userId);
+
+  const userIdBuffer = Uint8Array.from(userId, (c) => c.charCodeAt(0));
 
   const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions =
     {
@@ -32,15 +34,57 @@ const CreatePassKeyCredential = async (
         name: username,
         displayName: displayName,
       },
+      // SUPPORT ALL PASSKEYS
       pubKeyCredParams: [
         {
           type: "public-key",
           alg: -7,
         },
+        {
+          type: "public-key",
+          alg: -35,
+        },
+        {
+          type: "public-key",
+          alg: -36,
+        },
+        {
+          type: "public-key",
+          alg: -257,
+        },
+        {
+          type: "public-key",
+          alg: -258,
+        },
+        {
+          type: "public-key",
+          alg: -259,
+        },
+        {
+          type: "public-key",
+          alg: -37,
+        },
+        {
+          type: "public-key",
+          alg: -38,
+        },
+        {
+          type: "public-key",
+          alg: -39,
+        },
+        {
+          type: "public-key",
+          alg: -8,
+        },
       ],
       timeout: 15000,
       attestation: "direct",
     };
+
+  console.log(
+    "✅  publicKeyCredentialCreationOptions : ",
+    publicKeyCredentialCreationOptions
+  );
 
   return await navigator.credentials.create({
     publicKey: publicKeyCredentialCreationOptions,

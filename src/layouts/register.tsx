@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import CreatePassKeyCredential from "utils/passkey/create/createPasskeyCredential";
+import CreatePassKeyCredential from "utils/passkey/register/createPasskeyCredential";
 import parseClientData from "utils/passkey/shared/parseClientData";
+import validatePassKeyCreation from "utils/passkey/register/validatePassKeyCreation";
 import { Container, SignInButton, Copy, UserName } from "components/shared";
 
 import { useDispatch } from "react-redux";
@@ -30,6 +31,8 @@ const Register = ({ onRegister, onReturnToSignIn }: Props) => {
 
   const createPassKey = async () => {
     const challengeBufferString = generateRandomString(8);
+    console.log("✅ Created challengeBufferString : ", challengeBufferString);
+
     try {
       const credential = await CreatePassKeyCredential(
         username.toLowerCase(),
@@ -37,21 +40,38 @@ const Register = ({ onRegister, onReturnToSignIn }: Props) => {
         challengeBufferString
       );
 
+      console.log("✅ Created Pass Key Credential ! ");
+
       if (credential) {
+        console.log("✅ Credential is not null : ", credential);
+        // Validate PassKey Creation
+        switch (validatePassKeyCreation(credential)) {
+          case true:
+            console.log("✅ PassKey verification passed.");
+            break;
+          case false:
+            console.log("❌ PassKey verification failed.");
+            break;
+        }
         // @ts-ignore
+        // Gather the client data.
         const clientData = parseClientData(credential.response.clientDataJSON);
+
         // Save the pass key data
         dispatch(
           updatePasskeys({
+            id: credential.id,
             username: username,
-            challengeBufferString: challengeBufferString,
+            challengeBuffer: challengeBufferString,
             challenge: clientData.challenge,
           })
         );
         onRegister();
       } else {
+        console.log("❌ Credential does not exist.");
       }
     } catch (error) {
+      console.log("❌ Error creating credential");
       // Session Timed Out
       console.log("ERROR : ", error);
     }

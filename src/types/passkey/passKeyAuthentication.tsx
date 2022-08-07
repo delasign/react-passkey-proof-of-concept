@@ -1,6 +1,7 @@
 interface PasskeyAuthentication {
+  id: string;
   username: string;
-  challengeBufferString: string;
+  challengeBuffer: string;
   challenge: string;
 }
 

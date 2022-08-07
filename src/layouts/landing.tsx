@@ -7,6 +7,10 @@ import PasskeyAuthentication from "types/passkey/passKeyAuthentication";
 
 import store, { RootState } from "redux-functionality/index";
 import { useSelector } from "react-redux";
+
+// @ts-ignore
+import CBOR from "cbor-js";
+
 interface Props {
   onRegister: () => void;
   onSignIn: () => void;
@@ -28,11 +32,15 @@ const Landing = ({ onRegister, onSignIn }: Props) => {
     // Get the challenge
     const passkey = getPassKey();
     if (passkey !== null) {
-      console.log("✅ There is a match for that username!");
-      // Gather the client data from the passkey using the challenge
-      const clientData = await performLogin(passkey.challengeBufferString);
+      console.log("✅ There is a match for that username : ", passkey);
+      //Gather the client data from the passkey using the challenge
+      const clientData = await performLogin(
+        passkey.challengeBuffer,
+        passkey.id
+      );
       if (clientData !== null) {
         console.log("✅ We have performed the login.");
+        console.log("✅ clientData : ", clientData);
         console.log("⚈ ⚈ ⚈ Verifying Challenge ⚈ ⚈ ⚈");
         switch (validatePassKey(passkey.challenge, clientData.challenge)) {
           case true:
@@ -67,9 +75,10 @@ const Landing = ({ onRegister, onSignIn }: Props) => {
     }
   };
 
-  const performLogin = async (challengeBufferString: string) => {
+  const performLogin = async (challenge: string, credentialId: string) => {
     try {
-      const credential = await getPasskeyCredential(challengeBufferString);
+      const credential = await getPasskeyCredential(challenge, credentialId);
+      console.log("✅ credential : ", credential);
       // @ts-ignore
       return parseClientData(credential.response.clientDataJSON);
     } catch (error) {
