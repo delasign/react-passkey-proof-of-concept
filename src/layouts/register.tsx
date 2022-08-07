@@ -30,14 +30,18 @@ const Register = ({ onRegister, onReturnToSignIn }: Props) => {
   };
 
   const createPassKey = async () => {
+    // MARK: THIS SHOULD BE DONE ON THE BACKEND
+    const userId = generateRandomString(8);
+    console.log("✅  Created userId : ", userId);
     const challengeBufferString = generateRandomString(8);
     console.log("✅ Created challengeBufferString : ", challengeBufferString);
-
+    // MARK: THIS SHOULD BE DONE IF AN ACCOUNT IS VALID
     try {
       const credential = await CreatePassKeyCredential(
         username.toLowerCase(),
         displayName.toLowerCase(),
-        challengeBufferString
+        challengeBufferString,
+        userId
       );
 
       console.log("✅ Created Pass Key Credential ! ");
@@ -60,7 +64,7 @@ const Register = ({ onRegister, onReturnToSignIn }: Props) => {
         // Save the pass key data
         dispatch(
           updatePasskeys({
-            id: credential.id,
+            id: userId,
             username: username,
             challengeBuffer: challengeBufferString,
             challenge: clientData.challenge,

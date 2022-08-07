@@ -1,14 +1,12 @@
 import PasskeyAuthentication from "types/passkey/passKeyAuthentication";
 import generateRandomString from "utils/generators/randomString";
 
-const getPasskeyCredential = async (
-  challenge: string,
-  credentialId: string
-) => {
+const getPasskeyCredential = async (challenge: string) => {
   const challengeBuffer = Uint8Array.from(challenge, (c) => c.charCodeAt(0));
   const publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions = {
     challenge: challengeBuffer,
     rpId: process.env.REACT_APP_RP_DOMAIN,
+    userVerification: "preferred",
     timeout: 60000,
   };
 
