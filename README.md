@@ -3,12 +3,15 @@
 A proof of concept on creating & logging in with a passkey in ReactJS + Typescript.
 
 It followed the tutorial found on:
-1/ Setup + UI/UX
-https://www.delasign.com/blogpasskey-react-typescript-part1/
-2/ Registration (Create a passkey)
-https://www.delasign.com/blogpasskey-react-typescript-part2/
-3/ Authentication (Login with a passkey)
-https://www.delasign.com/blogpasskey-react-typescript-part3/
+
+1. Setup + UI/UX
+   https://www.delasign.com/blogpasskey-react-typescript-part1/
+
+2. Registration (Create a passkey)
+   https://www.delasign.com/blogpasskey-react-typescript-part2/
+
+3. Authentication (Login with a passkey)
+   https://www.delasign.com/blogpasskey-react-typescript-part3/
 
 Please note that this guide uses Styled Components. To learn more about Styled Components please visit:https://styled-components.com
 
