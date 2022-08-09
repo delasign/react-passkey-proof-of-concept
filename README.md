@@ -1,6 +1,6 @@
 # How to create & login with a passkey in React & Typescript Proof of Concept
 
-A proof of concept on creating & logging in with a passkey.
+A proof of concept on creating & logging in with a passkey in ReactJS + Typescript.
 
 It followed the tutorial found on:
 1/ Setup + UI/UX
