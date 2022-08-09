@@ -1,6 +1,7 @@
 import React from "react";
 import UserAccount from "types/passkey/userAccount";
 import validatePassKey from "./validatePassKey";
+import parseClientData from "../shared/parseClientData";
 
 const verifyClientData = (
   credential: Credential,
