@@ -1,8 +1,14 @@
-# Sample Typescript + React Redux Starter Project.
+# How to create & login with a passkey in React & Typescript Proof of Concept
 
-A sample Typescript + React-Redux starter project that demonstrates its use via a counter.
+A proof of concept on creating & logging in with a passkey.
 
-It followed the tutorial found on: https://www.delasign.com/blog/ts-react-redux-guide-2022/
+It followed the tutorial found on:
+1/ Setup + UI/UX
+https://www.delasign.com/blogpasskey-react-typescript-part1/
+2/ Registration (Create a passkey)
+https://www.delasign.com/blogpasskey-react-typescript-part2/
+3/ Authentication (Login with a passkey)
+https://www.delasign.com/blogpasskey-react-typescript-part3/
 
 Please note that this guide uses Styled Components. To learn more about Styled Components please visit:https://styled-components.com
 

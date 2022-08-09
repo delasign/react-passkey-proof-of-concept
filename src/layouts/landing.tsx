@@ -1,15 +1,14 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 import { Container, SignInButton, Copy, UserName } from "components/shared";
 import getPasskeyCredential from "utils/passkey/authenticate/getPasskeyCredential";
 import parseClientData from "utils/passkey/shared/parseClientData";
-import PasskeyAuthentication from "types/passkey/passKeyAuthentication";
+import UserAccount from "types/passkey/userAccount";
+
+import verifyUserId from "utils/passkey/authenticate/verifyUserId";
+import verifyClientData from "utils/passkey/authenticate/verifyClientData";
 
 import store, { RootState } from "redux-functionality/index";
 import { useSelector } from "react-redux";
-
-// @ts-ignore
-import CBOR from "cbor-js";
 
 interface Props {
   onRegister: () => void;
@@ -20,51 +19,28 @@ interface Props {
 const Landing = ({ onRegister, onSignIn }: Props) => {
   const [username, setUsername] = useState<string>("");
 
-  const passkeyAuthenticationArray: Array<PasskeyAuthentication> = useSelector(
-    (state: RootState) => state.passKey.passkeyAuthenticationArray
+  const userAccounts: Array<UserAccount> = useSelector(
+    (state: RootState) => state.userAccounts.accounts
   );
 
   const onUserNameChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(ev.target.value);
   };
 
-  const signIn = async () => {
-    console.log("⚈ ⚈ ⚈ signIn ⚈ ⚈ ⚈");
-    // Get the challenge
-    const passkey = getPassKey();
-    console.log("⚈ ⚈ ⚈ getPassKey ⚈ ⚈ ⚈");
-    if (passkey !== null) {
-      console.log(
-        "Get PassKey ✅ There is a match for that username : ",
-        passkey
-      );
-      //Gather the client data from the passkey using the challenge
-      const credential = await performLogin(passkey.challengeBuffer);
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // MARK: THIS SHOULD BE DONE ON THE BACKEND
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  /*
+      This functionality gathers the user account requested,
+      this should be gathered via an API call to the backend.
+  */
 
-      if (credential !== null) {
-        switch (verifyUserId(credential, passkey.id)) {
-          case true:
-            verifyClientData(credential, passkey);
-            break;
-          case false:
-            break;
-        }
-      } else {
-        console.log(
-          " signIn ❌ Failed to perform Login as credential does not exist."
-        );
-      }
-    } else {
-      console.log(" signIn ❌ There is no match for that username.");
-    }
-  };
-
-  const getPassKey = () => {
-    if (passkeyAuthenticationArray === undefined) {
+  const getUserAccount = () => {
+    if (userAccounts === undefined) {
       return null;
     }
 
-    const match = passkeyAuthenticationArray.filter(
+    const match = userAccounts.filter(
       (item) => item.username.toLowerCase() === username.toLowerCase()
     );
 
@@ -90,55 +66,54 @@ const Landing = ({ onRegister, onSignIn }: Props) => {
     }
   };
 
-  const verifyUserId = (credential: Credential, userId: string) => {
-    console.log("⚈ ⚈ ⚈ Verifying UserId ⚈ ⚈ ⚈");
-    const utf8Decoder = new TextDecoder("utf-8");
+  const signIn = async () => {
+    console.log("⚈ ⚈ ⚈ signIn ⚈ ⚈ ⚈");
+    // Get the account related to the username.
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // MARK: THIS SHOULD BE DONE ON THE BACKEND
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const userAccount = getUserAccount();
+    console.log("⚈ ⚈ ⚈ getUserAccount ⚈ ⚈ ⚈");
+    if (userAccount !== null) {
+      console.log(
+        "Get User Account ✅ There is a match for that username : ",
+        userAccount
+      );
+      // Login with the details.
+      // This part remains on the front-end in production.
+      const credential = await performLogin(userAccount.challengeBuffer);
 
-    const decodedUserHandle = utf8Decoder.decode(
-      // @ts-ignore
-      credential.response.userHandle
-    );
-    console.log("✅ decodedUserHandle : ", decodedUserHandle);
-
-    if (decodedUserHandle !== userId) {
-      console.log("❌ The userId does not match. Failed Login.");
-      return false;
-    } else {
-      console.log("✅  Verified UserId");
-      // @ts-ignore
-      return true;
-    }
-  };
-
-  const verifyClientData = (
-    credential: Credential,
-    passkey: PasskeyAuthentication
-  ) => {
-    //@ts-ignore
-    let clientData = parseClientData(credential.response.clientDataJSON);
-    if (clientData !== null) {
-      console.log("✅ We have performed the login.");
-      console.log("✅ clientData : ", clientData);
-      console.log("⚈ ⚈ ⚈ Verifying Challenge ⚈ ⚈ ⚈");
-      switch (validatePassKey(passkey.challenge, clientData.challenge)) {
-        case true:
-          console.log("✅ You have succesfully logged in.");
-          onSignIn();
-          break;
-        case false:
-          console.log("❌ The challenge does not match.");
-          break;
+      if (credential !== null) {
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // MARK: THIS SHOULD BE DONE ON THE BACKEND
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        /*
+          This functionality confirms that theres a credentials are valid
+          and that they match the details related to the users account.
+        */
+        switch (verifyUserId(credential, userAccount.userId)) {
+          case true:
+            switch (verifyClientData(credential, userAccount)) {
+              case true:
+                console.log("✅ You have succesfully logged in.");
+                onSignIn();
+                break;
+              case false:
+                console.log("❌ The challenge does not match.");
+                break;
+            }
+            break;
+          case false:
+            break;
+        }
+      } else {
+        console.log(
+          " signIn ❌ Failed to perform Login as credential does not exist."
+        );
       }
     } else {
-      console.log("❌ Failed to perform Login.");
+      console.log(" signIn ❌ There is no match for that username.");
     }
-  };
-
-  const validatePassKey = (
-    storedChallenge: string,
-    clientChallenge: string
-  ) => {
-    return storedChallenge === clientChallenge;
   };
 
   return (

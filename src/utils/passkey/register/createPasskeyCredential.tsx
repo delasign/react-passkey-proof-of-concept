@@ -1,5 +1,4 @@
 import React from "react";
-import generateRandomString from "utils/generators/randomString";
 
 const CreatePassKeyCredential = async (
   username: string,

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import CreatePassKeyCredential from "utils/passkey/register/createPasskeyCredential";
-import parseClientData from "utils/passkey/shared/parseClientData";
 import validatePassKeyCreation from "utils/passkey/register/validatePassKeyCreation";
 import { Container, SignInButton, Copy, UserName } from "components/shared";
 
 import { useDispatch } from "react-redux";
-import { updatePasskeys } from "redux-functionality/slices/passkeySlice";
+import { addUserAccount } from "redux-functionality/slices/userAccountsSlice";
 
 import generateRandomString from "utils/generators/randomString";
 
@@ -30,12 +29,19 @@ const Register = ({ onRegister, onReturnToSignIn }: Props) => {
   };
 
   const createPassKey = async () => {
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // MARK: THIS SHOULD BE DONE ON THE BACKEND
-    const userId = generateRandomString(8);
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const userId = generateRandomString(16);
     console.log("✅  Created userId : ", userId);
-    const challengeBufferString = generateRandomString(8);
+    const challengeBufferString = generateRandomString(16);
     console.log("✅ Created challengeBufferString : ", challengeBufferString);
-    // MARK: THIS SHOULD BE DONE IF AN ACCOUNT IS VALID
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    /* MARK: THIS SHOULD BE DONE IF AN ACCOUNT IS VALID 
+             AND THE CHALLENGE BUFFER AND USERID SHOULD BE PASSED
+             FROM THE RETURN CALL IN THE SERVER
+    */
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     try {
       const credential = await CreatePassKeyCredential(
         username.toLowerCase(),
@@ -47,30 +53,37 @@ const Register = ({ onRegister, onReturnToSignIn }: Props) => {
       console.log("✅ Created Pass Key Credential ! ");
 
       if (credential) {
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // MARK: THIS SHOULD BE DONE ON THE BACKEND
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         console.log("✅ Credential is not null : ", credential);
         // Validate PassKey Creation
-        switch (validatePassKeyCreation(credential)) {
-          case true:
-            console.log("✅ PassKey verification passed.");
-            break;
-          case false:
+        const challenge = validatePassKeyCreation(credential);
+        switch (challenge) {
+          case null:
             console.log("❌ PassKey verification failed.");
+            return;
+          default:
+            console.log(
+              "✅ PassKey verification passed with challenge : ",
+              challenge
+            );
+            // Save the user account data.
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // MARK: THIS SHOULD BE SAVED TO YOUR BACKEND DATABASE
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            dispatch(
+              addUserAccount({
+                userId: userId,
+                username: username,
+                displayName: displayName,
+                challengeBuffer: challengeBufferString,
+                challenge: challenge,
+              })
+            );
+            onRegister();
             break;
         }
-        // @ts-ignore
-        // Gather the client data.
-        const clientData = parseClientData(credential.response.clientDataJSON);
-
-        // Save the pass key data
-        dispatch(
-          updatePasskeys({
-            id: userId,
-            username: username,
-            challengeBuffer: challengeBufferString,
-            challenge: clientData.challenge,
-          })
-        );
-        onRegister();
       } else {
         console.log("❌ Credential does not exist.");
       }

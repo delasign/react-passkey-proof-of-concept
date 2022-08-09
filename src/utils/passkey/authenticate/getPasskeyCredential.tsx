@@ -1,6 +1,3 @@
-import PasskeyAuthentication from "types/passkey/passKeyAuthentication";
-import generateRandomString from "utils/generators/randomString";
-
 const getPasskeyCredential = async (challenge: string) => {
   const challengeBuffer = Uint8Array.from(challenge, (c) => c.charCodeAt(0));
   const publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions = {
